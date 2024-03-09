@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '00 01 * * *'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+          - beta
+          - nightly
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{matrix.rust}}
+          components: rustfmt, clippy
+      - name: Check
+        run: cargo check
+      - name: Format
+        run: cargo fmt -- --check
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+      - name: Test
+        run: cargo test
